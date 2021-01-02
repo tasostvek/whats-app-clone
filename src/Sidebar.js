@@ -6,10 +6,22 @@ import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import SidebarChat from "./SidebarChat";
-import db from './firebase';
+import db, { auth } from './firebase';
+import { useStateValue } from './StateProvider';
+import { actionTypes } from './Reducer'
 
 function Sidebar() {
     const [rooms, setRooms] = useState([]);
+    const [{ user }, dispatch] = useStateValue();
+
+    const signOut = () => {
+        auth.signOut().then(() => {
+            dispatch({
+                type: actionTypes.SET_USER,
+                user: null,
+            });
+        })
+    }
 
     useEffect(() => {
         const unsubscribe = db.collection("rooms")
@@ -30,7 +42,7 @@ function Sidebar() {
     return (
         <div className="sidebar">
             <div className="sidebar_header">
-                <Avatar/>
+                <Avatar className="sidebar_avatar" onClick={signOut} src={user?.photoURL}/>
                 <div className="sidebar_headerRight">
                     <IconButton>
                         <DonutLargeIcon/>

@@ -2,16 +2,31 @@ import './App.css';
 import Sidebar from './Sidebar';
 import Chat from "./Chat";
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
-import { useState } from 'react';
+import Login from './Login';
+import { useStateValue } from './StateProvider';
+import { useEffect } from 'react';
+import { auth } from './firebase';
+import { actionTypes } from './Reducer';
 
 
 function App() {
-  const [user, setUser] = useState(null)
+  const [{user}, dispatch] = useStateValue();
+
+  useEffect(()=> {
+    auth.onAuthStateChanged(user => {
+      if(user){
+        dispatch({
+          type: actionTypes.SET_USER,
+          user: user,
+      });
+      }
+    })
+  },[])
   return (
     //BEM naming convetion
     <div className="app">
       {!user ? (
-        <h1>LOGIN</h1>
+        <Login/>
       ): (
         <div className="app_body">
           <Router>
@@ -20,9 +35,9 @@ function App() {
               <Route path="/rooms/:roomId">
                 <Chat/>
               </Route>
-              <Route path="/">
-                {/*<Chat/>*/}
-              </Route>
+              {/*<Route exact path="/">
+                <Chat/>
+              </Route>*/}
             <Switch/>
           </Router>
         </div>
